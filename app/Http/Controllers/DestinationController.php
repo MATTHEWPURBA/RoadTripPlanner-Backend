@@ -6,6 +6,9 @@ use App\Models\Trip;
 use App\Models\Destination;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+
 
 class DestinationController extends Controller
 {
@@ -150,21 +153,44 @@ class DestinationController extends Controller
      */
     public function geocode(Request $request)
     {
+        Log::info('Geocode endpoint called', ['request_data' => $request->all()]);
+        
         $validator = Validator::make($request->all(), [
             'address' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Geocode validation failed', ['errors' => $validator->errors()]);
             return response()->json(['errors' => $validator->errors()], 422);
         }
         
         $address = urlencode($request->address);
         $apiKey = env('GEOAPIFY_API_KEY', '');
+
+
+        if (empty($apiKey)) {
+            Log::error('Geocoding API key is missing');
+            return response()->json(['error' => 'Geocoding service misconfigured'], 500);
+        }
+        
+        Log::info('Making request to Geoapify', [
+            'address' => $request->address, 
+            'encoded_address' => $address
+        ]);
         
         try {
-            $response = \Illuminate\Support\Facades\Http::get(
-                "https://api.geoapify.com/v1/geocode/search?text={$address}&apiKey={$apiKey}"
-            );
+            $url = "https://api.geoapify.com/v1/geocode/search?text={$address}&apiKey={$apiKey}";
+            Log::debug('Geocoding URL (without API key)', [
+                'base_url' => "https://api.geoapify.com/v1/geocode/search?text={$address}&apiKey=API_KEY_HIDDEN"
+            ]);
+            
+            $response = Http::get($url);
+            
+            Log::info('Geoapify response received', [
+                'status' => $response->status(),
+                'successful' => $response->successful(),
+                'has_features' => isset($response->json()['features'])
+            ]);
             
             if ($response->successful()) {
                 $data = $response->json();
@@ -174,19 +200,34 @@ class DestinationController extends Controller
                     $coords = $location['geometry']['coordinates'];
                     $properties = $location['properties'];
                     
-                    return response()->json([
+                    $result = [
                         'latitude' => $coords[1],
                         'longitude' => $coords[0],
                         'formatted_address' => $properties['formatted'],
                         'name' => $properties['name'] ?? $properties['formatted'],
-                    ]);
+                    ];
+                    
+                    Log::info('Geocoding successful', ['result' => $result]);
+                    return response()->json($result);
+                } else {
+                    Log::warning('No geocoding results found', ['data' => $data]);
                 }
+            } else {
+                Log::error('Geocoding service error', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
             }
             
             return response()->json(['error' => 'Location not found'], 404);
             
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Geocoding service unavailable'], 503);
+            Log::error('Exception during geocoding', [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Geocoding service unavailable: ' . $e->getMessage()], 503);
         }
     }
 }
