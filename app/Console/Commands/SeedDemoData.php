@@ -54,3 +54,6 @@ class SeedDemoData extends Command
         return 0;
     }
 }
+
+// This file is part of the Laravel framework.
+// app/Console/Commands/SeedDemoData.php

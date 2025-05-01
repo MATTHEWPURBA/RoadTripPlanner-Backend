@@ -54,3 +54,6 @@ class Trip extends Model
         return PointOfInterest::whereIn('route_segment_id', $this->routeSegments->pluck('id'));
     }
 }
+
+// This file is part of the Laravel framework.
+// app/Models/Trip.php

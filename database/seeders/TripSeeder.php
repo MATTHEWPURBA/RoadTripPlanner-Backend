@@ -46,3 +46,7 @@ class TripSeeder extends Seeder
         ]);
     }
 }
+
+
+// This file is part of the Laravel framework.
+// database/seeders/TripSeeder.php

@@ -33,3 +33,8 @@ return new class extends Migration
         Schema::dropIfExists('cache_locks');
     }
 };
+
+
+
+// This file is part of the Laravel framework.
+//database/migrations/0001_01_01_000001_create_cache_table.php

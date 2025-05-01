@@ -23,3 +23,8 @@ Artisan::command('roadtrip:seed {--refresh : Whether to refresh the database tab
     $this->info('Road Trip Planner demo data is now ready for testing!');
     $this->info('You can now test the API endpoints with tools like Postman or Insomnia.');
 })->purpose('Seed Road Trip Planner with demo data for testing');
+
+
+
+// This file is part of the Laravel framework.
+// routes/console.php

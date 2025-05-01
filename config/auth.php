@@ -113,3 +113,6 @@ return [
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
 ];
+
+// This file is part of the Laravel framework.
+//config/auth.php

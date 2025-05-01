@@ -215,3 +215,8 @@ return [
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 
 ];
+
+
+
+// This file is part of the Laravel framework.
+//config/session.php

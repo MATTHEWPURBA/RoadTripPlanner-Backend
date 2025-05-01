@@ -140,3 +140,7 @@ class PointOfInterestController extends Controller
         return response()->json($pois);
     }
 }
+
+
+// This file is part of the Laravel framework.
+// app/Http/Controllers/PointOfInterestController.php

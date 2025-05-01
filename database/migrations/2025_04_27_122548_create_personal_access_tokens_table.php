@@ -31,3 +31,7 @@ return new class extends Migration
         Schema::dropIfExists('personal_access_tokens');
     }
 };
+
+
+// This file is part of the Laravel framework.
+//database/migrations/2025_04_27_122548_create_personal_access_tokens_table.php

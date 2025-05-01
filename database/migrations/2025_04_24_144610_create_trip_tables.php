@@ -74,3 +74,7 @@ class CreateTripTables extends Migration
         Schema::dropIfExists('trips');
     }
 }
+
+
+// This file is part of the Laravel framework.
+// database/migrations/2025_04_24_144610_create_trip_tables.php

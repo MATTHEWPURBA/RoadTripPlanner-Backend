@@ -282,3 +282,7 @@ class PointsOfInterestService
         return $result;
     }
 }
+
+
+// This file is part of the Laravel framework.
+// app/Services/PointsOfInterestService.php

@@ -168,3 +168,6 @@ class TripController extends Controller
         return response()->json($trip);
     }
 }
+
+// This file is part of the Laravel framework.
+// app/Http/Controllers/TripController.php

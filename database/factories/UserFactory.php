@@ -42,3 +42,7 @@ class UserFactory extends Factory
         ]);
     }
 }
+
+
+// This file is part of the Laravel framework.
+//database/factories/UserFactory.php

@@ -172,3 +172,7 @@ return [
     ],
 
 ];
+
+
+// This file is part of the Laravel framework.
+//config/database.php

@@ -17,3 +17,7 @@ return [
     
     'supports_credentials' => true, // Set to true if using cookies/sessions
 ];
+
+
+// This file is part of the Laravel framework.
+//config/cors.php

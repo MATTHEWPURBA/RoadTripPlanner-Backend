@@ -46,3 +46,7 @@ class User extends Authenticatable
         ];
     }
 }
+
+
+// This file is part of the Laravel framework.
+// app/Models/User.php

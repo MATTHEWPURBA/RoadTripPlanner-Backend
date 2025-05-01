@@ -34,3 +34,8 @@ try {
 // Close the connection
 $conn = null;
 ?>
+
+<!-- 
+// This file is part of the Laravel framework.
+// create_database.php
+-->

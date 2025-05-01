@@ -22,3 +22,6 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 }
+
+// This file is part of the Laravel framework.
+// database/seeders/DatabaseSeeder.php

@@ -59,3 +59,6 @@ class PointOfInterest extends Model
         return 'fas ' . ($iconMap[$primaryType] ?? $iconMap['default']);
     }
 }
+
+// This file is part of the Laravel framework.
+// app/Models/PointOfInterest.php

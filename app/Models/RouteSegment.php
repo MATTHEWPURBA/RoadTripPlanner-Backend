@@ -87,3 +87,7 @@ class RouteSegment extends Model
         return number_format($this->distance, 1) . ' km';
     }
 }
+
+
+// This file is part of the Laravel framework.
+// app/Models/RouteSegment.php

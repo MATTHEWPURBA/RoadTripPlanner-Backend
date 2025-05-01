@@ -55,3 +55,8 @@ return new class extends Migration
         Schema::dropIfExists('failed_jobs');
     }
 };
+
+
+
+// This file is part of the Laravel framework.
+//database/migrations/0001_01_01_000002_create_jobs_table.php

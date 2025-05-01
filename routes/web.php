@@ -45,3 +45,8 @@ Route::get('/route-segments/{segmentId}/points-of-interest', [PointOfInterestCon
 Route::get('/route-segments/{segmentId}/accommodation', [PointOfInterestController::class, 'findAccommodation']);
 Route::get('/trips/{tripId}/points-of-interest', [PointOfInterestController::class, 'getByTrip']);
 Route::get('/trips/{tripId}/events', [PointOfInterestController::class, 'findEvents']);
+
+
+
+// This file is part of the Laravel framework.
+// routes/web.php

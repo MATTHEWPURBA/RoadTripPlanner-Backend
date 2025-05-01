@@ -68,3 +68,7 @@ class Destination extends Model
             ->first();
     }
 }
+
+
+// This file is part of the Laravel framework.
+// app/Models/Destination.php

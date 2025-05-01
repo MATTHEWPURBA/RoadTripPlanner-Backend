@@ -47,3 +47,9 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
     }
 };
+
+
+
+
+// This file is part of the Laravel framework.
+//database/migrations/0001_01_01_000000_create_users_table.php

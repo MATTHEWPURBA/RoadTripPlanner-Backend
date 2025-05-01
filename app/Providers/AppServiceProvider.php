@@ -22,3 +22,8 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 }
+
+
+
+// This file is part of the Laravel framework.
+// app/Providers/AppServiceProvider.php

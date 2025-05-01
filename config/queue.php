@@ -110,3 +110,7 @@ return [
     ],
 
 ];
+
+
+// This file is part of the Laravel framework.
+//config/queue.php
