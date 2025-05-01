@@ -12,13 +12,32 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+
+
+
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'cors' => \App\Http\Middleware\Cors::class,
+    ]);
     
-    })
+    // You can also add it to the global HTTP middleware stack
+    $middleware->append(\App\Http\Middleware\Cors::class);
+})
+
+
+->withProviders([
+    // Other providers...
+    Laravel\Sanctum\SanctumServiceProvider::class,
+])
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
 
 
+
+
 // This file is part of the Laravel framework.
 //bootstrap/app.php
+// withException itu harus ada di atas create() karena create() itu adalah method terakhir yang dipanggil
+// dan di bawah dari semua with yang ada di atasnya

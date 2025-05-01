@@ -8,6 +8,8 @@ use App\Models\RouteSegment;
 use App\Services\RouteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+
 
 class TripController extends Controller
 {
@@ -25,8 +27,14 @@ class TripController extends Controller
      */
     public function index()
     {
-        $trips = Trip::all();
-        return response()->json($trips);
+        try {
+            $trips = Trip::all();
+            return response()->json($trips);
+        } catch (\Exception $e) {
+            // Log the actual error for debugging
+            Log::error('Trip index error: ' . $e->getMessage());
+            return response()->json(['error' => 'Database error', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**

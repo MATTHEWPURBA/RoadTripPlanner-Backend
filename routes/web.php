@@ -15,36 +15,30 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
+| Here is where you can register web routes for your application.
+| These routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group.
 |
 */
 
-// Trip routes
-Route::get('/trips', [TripController::class, 'index']);
-Route::post('/trips', [TripController::class, 'store']);
-Route::get('/trips/{id}', [TripController::class, 'show']);
-Route::put('/trips/{id}', [TripController::class, 'update']);
-Route::delete('/trips/{id}', [TripController::class, 'destroy']);
-Route::post('/trips/{id}/calculate-route', [TripController::class, 'calculateRoute']);
+// Basic welcome page
+Route::get('/', function () {
+    return view('welcome');
+});
 
-// Destination routes
-Route::post('/destinations', [DestinationController::class, 'store']);
-Route::put('/destinations/{id}', [DestinationController::class, 'update']);
-Route::delete('/destinations/{id}', [DestinationController::class, 'destroy']);
-Route::get('/trips/{tripId}/destinations', [DestinationController::class, 'getByTrip']);
-Route::post('/trips/{tripId}/destinations/reorder', [DestinationController::class, 'reorder']);
-Route::post('/destinations/geocode', [DestinationController::class, 'geocode']);
+// Sanctum CSRF endpoint for SPA authentication
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
 
-// Points of Interest routes
-Route::get('/route-segments/{segmentId}/points-of-interest', [PointOfInterestController::class, 'findForSegment']);
-Route::get('/route-segments/{segmentId}/accommodation', [PointOfInterestController::class, 'findAccommodation']);
-Route::get('/trips/{tripId}/points-of-interest', [PointOfInterestController::class, 'getByTrip']);
-Route::get('/trips/{tripId}/events', [PointOfInterestController::class, 'findEvents']);
+// SPA fallback - This redirects all other requests to the Vue app for client-side routing
+Route::get('{any}', function () {
+    return view('welcome');
+})->where('any', '.*');
+
 
 
 
