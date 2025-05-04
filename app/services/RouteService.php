@@ -21,6 +21,12 @@ class RouteService
         // Free tier: 2,000 requests per day
         $apiKey = env('OPENROUTE_SERVICE_API_KEY', '');
         
+        // Check if API key exists
+        if (empty($apiKey)) {
+            Log::error('Missing OpenRouteService API key');
+            return $this->calculateDirectDistance($origin, $destination);
+        }
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => $apiKey,
@@ -32,7 +38,13 @@ class RouteService
                     [$destination[1], $destination[0]],
                 ],
                 'format' => 'geojson',
-                'instructions' => false,
+                // 'instructions' => false,
+            ]);
+
+            // Log the actual API response for debugging
+            Log::info('OpenRouteService response', [
+                'status' => $response->status(),
+                'body' => $response->body()
             ]);
             
             if ($response->successful()) {
@@ -44,21 +56,32 @@ class RouteService
                 if ($route) {
                     return [
                         'distance' => $route['properties']['segments'][0]['distance'] / 1000, // Convert to km
-                        'duration' => $route['properties']['segments'][0]['duration'], // In seconds
+                        // Ensure duration is an integer by rounding
+                        'duration' => (int)round($route['properties']['segments'][0]['duration']), // Cast to integer
                         'polyline' => json_encode($route['geometry']), // Store the route path as GeoJSON
                     ];
                 }
             }
-            
+            else {
+                // Handle specific error codes
+                Log::error('Route calculation failed', [
+                    'status' => $response->status(),
+                    'message' => $response->json()['error'] ?? 'Unknown error'
+                ]);
+            }
+        
             Log::error('Failed to get route data from OpenRouteService: ' . $response->body());
             
             // Fallback to a simple direct line calculation if API fails
             return $this->calculateDirectDistance($origin, $destination);
             
         } catch (\Exception $e) {
-            Log::error('Exception while getting route data: ' . $e->getMessage());
+            Log::error('Exception in route calculation', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
-            // Fallback to a simple direct line calculation
+             // Always return fallback calculation if API fails
             return $this->calculateDirectDistance($origin, $destination);
         }
     }
@@ -71,7 +94,7 @@ class RouteService
      * @param array $destination [lat, lng]
      * @return array
      */
-    private function calculateDirectDistance(array $origin, array $destination)
+    public function calculateDirectDistance(array $origin, array $destination)
     {
         // Earth's radius in km
         $earthRadius = 6371;
@@ -90,6 +113,14 @@ class RouteService
         
         // Estimate duration based on average speed of 60 km/h
         $duration = $distance * 60; // seconds
+
+
+            // Return data in same format as API would
+        Log::info('Using fallback direct distance calculation', [
+            'origin' => $origin,
+            'destination' => $destination,
+            'calculated_distance' => $distance
+        ]);
         
         return [
             'distance' => $distance,
@@ -97,6 +128,8 @@ class RouteService
             'polyline' => null, // No polyline in direct calculation
         ];
     }
+
+
     
     /**
      * Calculate estimated fuel consumption based on distance and vehicle efficiency
@@ -110,6 +143,9 @@ class RouteService
         // Formula: distance (km) * efficiency (L/100km) / 100
         return ($distance * $efficiency) / 100;
     }
+
+
+
 }
 
 

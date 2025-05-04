@@ -127,54 +127,88 @@ class TripController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function calculateRoute($id)
-    {
+{
+    try {
         $trip = Trip::with('destinations')->findOrFail($id);
+        
+        // Check if we have enough destinations
+        if ($trip->destinations->count() < 2) {
+            return response()->json([
+                'error' => 'At least two destinations are required to calculate a route',
+                'destinations_count' => $trip->destinations->count()
+            ], 400);
+        }
         
         // Clear existing route segments
         $trip->routeSegments()->delete();
         
-        // Calculate new routes if we have at least 2 destinations
-        if ($trip->destinations->count() >= 2) {
-            $totalDistance = 0;
-            $totalDuration = 0;
+        $totalDistance = 0;
+        $totalDuration = 0;
+        $routeSegments = [];
+        
+        // Calculate routes between consecutive destinations
+        for ($i = 0; $i < $trip->destinations->count() - 1; $i++) {
+            $origin = $trip->destinations[$i];
+            $destination = $trip->destinations[$i + 1];
             
-            for ($i = 0; $i < $trip->destinations->count() - 1; $i++) {
-                $origin = $trip->destinations[$i];
-                $destination = $trip->destinations[$i + 1];
+            $routeData = $this->routeService->getRouteData(
+                [$origin->latitude, $origin->longitude],
+                [$destination->latitude, $destination->longitude]
+            );
+            
+            if ($routeData) {
+                // Ensure data types match database schema
+                $segmentData = [
+                    'trip_id' => $trip->id,
+                    'origin_id' => $origin->id,
+                    'destination_id' => $destination->id,
+                    'distance' => (float)$routeData['distance'], // Ensure float
+                    'duration' => (int)$routeData['duration'], // Ensure integer
+                    'polyline' => $routeData['polyline'] ?? null,
+                ];
                 
-                $routeData = $this->routeService->getRouteData(
-                    [$origin->latitude, $origin->longitude],
-                    [$destination->latitude, $destination->longitude]
-                );
+                $segment = RouteSegment::create($segmentData);
                 
-                if ($routeData) {
-                    $segment = RouteSegment::create([
-                        'trip_id' => $trip->id,
-                        'origin_id' => $origin->id,
-                        'destination_id' => $destination->id,
-                        'distance' => $routeData['distance'],
-                        'duration' => $routeData['duration'],
-                        'polyline' => $routeData['polyline'] ?? null,
-                    ]);
-                    
-                    $totalDistance += $routeData['distance'];
-                    $totalDuration += $routeData['duration'];
-                }
+                $routeSegments[] = $segment;
+                $totalDistance += $routeData['distance'];
+                $totalDuration += $routeData['duration'];
             }
-            
-            // Update trip with total distance and duration
-            $fuelConsumption = $this->routeService->calculateFuelConsumption($totalDistance);
-            
-            $trip->update([
-                'total_distance' => $totalDistance,
-                'total_duration' => $totalDuration,
-                'fuel_consumption' => $fuelConsumption,
-            ]);
         }
         
+        // Update trip totals (also ensure proper types)
+        $fuelConsumption = $this->routeService->calculateFuelConsumption($totalDistance);
+        $trip->update([
+            'total_distance' => (float)$totalDistance,
+            'total_duration' => (int)$totalDuration,
+            'fuel_consumption' => (float)$fuelConsumption,
+        ]);
+        
         $trip->load('routeSegments');
-        return response()->json($trip);
+        return response()->json([
+            'trip' => $trip,
+            'calculated_segments' => count($routeSegments),
+            'route_summary' => [
+                'distance' => $totalDistance,
+                'duration' => $totalDuration,
+                'fuel' => $fuelConsumption
+            ]
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Route calculation failed', [
+            'trip_id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'error' => 'Failed to calculate route',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
+
+
 }
 
 // This file is part of the Laravel framework.
